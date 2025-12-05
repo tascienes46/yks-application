@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YKS Hazırlık Uygulaması</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            background: #1e293b;
+            border-bottom: 2px solid #334155;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Side Menu */
+        .side-menu {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: #1e293b;
+            z-index: 200;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .side-menu.active {
+            left: 0;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 150;
+            display: none;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        .menu-header {
+            padding: 25px 20px;
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            border-bottom: 2px solid #475569;
+        }
+
+        .menu-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .menu-items {
+            padding: 15px 0;
+        }
+
+        .menu-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: #334155;
+            border-left-color: #60a5fa;
+        }
+
+        .menu-item.active {
+            background: #334155;
+            border-left-color: #60a5fa;
+            color: #60a5fa;
+        }
+
+        .menu-icon {
+            font-size: 1.3rem;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        /* Cards */
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: #e2e8f0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #334155;
+            border: 1px solid #475569;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: #60a5fa;
+            box-shadow: 0 6px 20px rgba(96, 165, 250, 0.15);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #334155;
+            border: 2px solid #475569;
+            border-radius: 10px;
+            font-size: 1rem;
+            color: #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        option {
+            background: #1e293b;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #475569;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: #64748b;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Timer Display */
+        .timer-display {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .timer {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 3px;
+        }
+
+        .timer.running {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Tasks List */
+        .task-item {
+            background: #334155;
+            border: 2px solid #475569;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            border-color: #60a5fa;
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            background: #1e293b;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .task-subject {
+            font-weight: 600;
+            color: #60a5fa;
+            font-size: 1rem;
+        }
+
+        .task-date {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .task-title {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-complete {
+            background: #10b981;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-complete:hover {
+            background: #059669;
+        }
+
+        .btn-delete-small {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete-small:hover {
+            background: #dc2626;
+        }
+
+        /* Countdown */
+        .countdown-display {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .countdown-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-bottom: 30px;
+        }
+
+        .countdown-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-unit {
+            background: rgba(96, 165, 250, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            min-width: 100px;
+        }
+
+        .countdown-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+            display: block;
+        }
+
+        .countdown-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        /* Progress Bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        /* Mode Toggle */
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: #334155;
+            border: 2px solid #475569;
+            border-radius: 10px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .mode-btn:hover {
+            border-color: #60a5fa;
+            color: #60a5fa;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-bar {
+                padding: 12px 15px;
+            }
+
+            .app-title {
+                font-size: 1.2rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .timer {
+                font-size: 3rem;
+            }
+
+            .countdown-value {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <div class="app-title">📚 YKS Hazırlık</div>
+        <div style="width: 40px;"></div>
+    </div>
+
+    <!-- Side Menu -->
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <div class="menu-title">Menü</div>
+        </div>
+        <div class="menu-items">
+            <div class="menu-item active" onclick="navigateTo('home')">
+                <span class="menu-icon">🏠</span>
+                <span>Ana Sayfa</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('countdown')">
+                <span class="menu-icon">⏰</span>
+                <span>Geri Sayım</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('tasks')">
+                <span class="menu-icon">📝</span>
+                <span>Çalışma Takip</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('timer')">
+                <span class="menu-icon">⏱️</span>
+                <span>Zamanlayıcı</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('progress')">
+                <span class="menu-icon">📊</span>
+                <span>İlerleme Takibi</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('goals')">
+                <span class="menu-icon">🎯</span>
+                <span>Hedeflerim</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('schedule')">
+                <span class="menu-icon">📅</span>
+                <span>Çalışma Programı</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <h1>YKS Hazırlık Uygulaması</h1>
+            <p class="subtitle">Tüm çalışma araçların tek bir yerde!</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value" id="homeTasksCount">0</span>
+                    <span class="stat-label">Toplam Görev</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="homeStudyTime">0h</span>
+                    <span class="stat-label">Bugün Çalışma</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="homeExamsCount">0</span>
+                    <span class="stat-label">Deneme Sayısı</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="homeDaysLeft">0</span>
+                    <span class="stat-label">Kalan Gün</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Hızlı Erişim</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                    <button class="btn" onclick="navigateTo('timer')" style="padding: 20px;">⏱️ Zamanlayıcı Başlat</button>
+                    <button class="btn" onclick="navigateTo('tasks')" style="padding: 20px;">📝 Görev Ekle</button>
+                    <button class="btn" onclick="navigateTo('progress')" style="padding: 20px;">📊 Deneme Ekle</button>
+                    <button class="btn" onclick="navigateTo('schedule')" style="padding: 20px;">📅 Program Gör</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">YKS'ye Kalan Süre</div>
+                <div id="homeCountdown" style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2rem; font-weight: bold; color: #60a5fa;" id="homeCountdownDisplay">Yükleniyor...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Countdown Page -->
+        <div id="countdown" class="page">
+            <h1>⏰ YKS Geri Sayım</h1>
+            <p class="subtitle">20 Haziran 2026'ya kalan süre</p>
+
+            <div class="countdown-display">
+                <div class="countdown-title">YKS</div>
+                <div class="countdown-grid" id="countdownGrid"></div>
+            </div>
+        </div>
+
+        <!-- Tasks Page -->
+        <div id="tasks" class="page">
+            <h1>📝 Çalışma Takip</h1>
+            <p class="subtitle">Çalışmalarını düzenle, başarıya ulaş</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value" id="totalTasks">0</span>
+                    <span class="stat-label">Toplam Görev</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="completedTasks">0</span>
+                    <span class="stat-label">Tamamlanan</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="pendingTasks">0</span>
+                    <span class="stat-label">Devam Eden</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Yeni Çalışma Ekle</div>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="taskSubject">Ders</label>
+                        <select id="taskSubject" required>
+                            <option value="">Ders Seçin</option>
+                            <option value="Türkçe">Türkçe</option>
+                            <option value="Matematik">Matematik</option>
+                            <option value="Fizik">Fizik</option>
+                            <option value="Kimya">Kimya</option>
+                            <option value="Biyoloji">Biyoloji</option>
+                            <option value="Tarih">Tarih</option>
+                            <option value="Coğrafya">Coğrafya</option>
+                            <option value="Felsefe">Felsefe</option>
+                            <option value="Din Kültürü">Din Kültürü</option>
+                            <option value="İngilizce">İngilizce</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskTitle">Konu / Görev</label>
+                        <input type="text" id="taskTitle" placeholder="Örn: Türev konusu çalış" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskNotes">Notlar (Opsiyonel)</label>
+                        <textarea id="taskNotes" placeholder="Çalışma detayları..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">Ekle</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Çalışmalarım</div>
+                <div id="tasksList"></di
